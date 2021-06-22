@@ -17,12 +17,15 @@ let ReservationSchema = new mongoose.Schema({
 	},
 	ticketQuantity: {
 		type: Number,
+		required: true,
 	},
 	totalAmount: {
 		type: Number,
+		required: true,
 	},
 	sellingOption: {
 		type: SellingOption,
+		required: true,
 	},
 	createdAt: {
 		type: Date,
@@ -41,7 +44,6 @@ ReservationSchema.methods.toJSON = function () {
 	const reservationObject = reservation.toObject();
 
 	delete reservationObject.createdAt;
-	delete reservationObject.updatedAt;
 	delete reservationObject.isBeingProcessed;
 	delete reservationObject.event;
 	delete reservationObject.__v;
