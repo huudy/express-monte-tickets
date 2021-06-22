@@ -1,0 +1,28 @@
+{
+  "name": "express-monte-tickets",
+  "version": "1.0.0",
+  "description": "Simple Rest Api allowing to book tickets for a event",
+  "main": "index.js",
+  "scripts": {
+    "start": "env-cmd -f ./config/dev.env node src/index.js",
+    "dev": "env-cmd -f ./config/dev.env nodemon src/index.js",
+    "test": "env-cmd -f ./config/test.env jest --watchAll --runInBand --testEnvironment=node ",
+    "test-mocha": "mocha --timeout 10000"
+  },
+  "author": "Pawel Trenda",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "log4js": "^5.3.0",
+    "mongodb": "^3.6.8",
+    "mongoose": "^5.12.14",
+    "node-cron": "^3.0.0",
+    "validator": "^12.2.0"
+  },
+  "devDependencies": {
+    "env-cmd": "^10.0.1",
+    "jest": "^24.9.0",
+    "nodemon": "^1.19.4",
+    "supertest": "^4.0.2"
+  }
+}
