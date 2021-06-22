@@ -5,9 +5,12 @@ const log = require("log4js").getLogger("mongoose");
 
 const db = mongoose.connection;
 const connect = () => {
+	console.log(process.env.AUTO_RECONNECT);
+	console.log(process.env.UNIFIED_TOPOLOGY);
 	mongoose.connect(process.env.MONGODB_URI, {
 		useNewUrlParser: true,
-		autoReconnect: true,
+		autoReconnect: process.env.AUTO_RECONNECT,
+		useUnifiedTopology: process.env.UNIFIED_TOPOLOGY,
 		useCreateIndex: true,
 	});
 };

@@ -17,7 +17,6 @@ test("Should pay for a reservation if paid within 15 min", async () => {
 			token: "",
 		})
 		.expect(201);
-	console.log(response.error);
 	const dbPayment = await Payment.findById(response.body._id);
 	// Check if it was inserted with proper reservationId
 	expect(response.body.reservationId).toEqual(dbPayment.reservationId);
@@ -40,7 +39,6 @@ test("Should not pay for a reservation if card error", async () => {
 			token: "card_error",
 		})
 		.expect(400);
-	// console.log(response.error);
 	const dbPayment = await Payment.findById(response.body._id);
 	// Check if it was inserted with proper reservationId
 	expect(dbPayment).toEqual(null);
@@ -53,7 +51,6 @@ test("Should not pay for a reservation if payment error", async () => {
 			token: "payment_error",
 		})
 		.expect(400);
-	// console.log(response.error);
 	const dbPayment = await Payment.findById(response.body._id);
 	// Check if it was inserted with proper reservationId
 	expect(dbPayment).toEqual(null);
