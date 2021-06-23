@@ -1,5 +1,5 @@
 const express = require("express");
-const seatsCheck = require("../middleware/checkSeats");
+const seatsCheck = require("../middleware/seatsCheck");
 const { Reservation } = require("../models/reservation");
 const router = new express.Router();
 let log = require("log4js").getLogger("reservations");
