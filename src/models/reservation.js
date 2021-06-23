@@ -32,6 +32,11 @@ let ReservationSchema = new mongoose.Schema({
 		required: true,
 		default: new Date(),
 	},
+	paymentTries: {
+		type: Number,
+		required: true,
+		default: 0,
+	},
 	event: {
 		type: mongoose.Schema.Types.ObjectId,
 		required: true,

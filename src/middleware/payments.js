@@ -1,5 +1,6 @@
 const { Reservation } = require("../models/reservation");
 const charge = require("../util/paymentGateway");
+const RETRIES_LIMIT = 3;
 
 const isReservationValid = async (req, res, next) => {
 	try {
@@ -8,7 +9,7 @@ const isReservationValid = async (req, res, next) => {
 
 		if (!reservation) {
 			throw new Error(
-				"Could not find reservation with id: " + req.param.reservation_id
+				`Could not find reservation with id: ${req.body.reservationId}`
 			);
 		}
 		if (reservation.isPaid) {
@@ -16,7 +17,12 @@ const isReservationValid = async (req, res, next) => {
 				`Reservation with id: ${reservation._id} is already paid for`
 			);
 		}
-
+		if (reservation.paymentTries >= RETRIES_LIMIT) {
+			await reservation.delete();
+			throw new Error(
+				"We are sorry but you reached the maximum number of payment retries. Your reservation is no longer valid. Please book a new ticket."
+			);
+		}
 		if (new Date() - new Date(reservation.createdAt) > FIFTEEN_MIN) {
 			await reservation.delete();
 			throw new Error(
@@ -39,14 +45,19 @@ const externalPayment = async (req, res, next) => {
 		await reservationPaid(currentReservation);
 		next();
 	} catch (e) {
-		await prelongReservation(currentReservation);
+		await prelongAndIncreseTries(currentReservation);
 		res.status(400).send({
-			error: `${e.message}. You have another 15min to finish your payment.`,
+			error: `${
+				e.message
+			}. You have another 15min to finish your payment. You have ${
+				RETRIES_LIMIT - currentReservation.paymentTries
+			} tries left`,
 		});
 	}
 };
-const prelongReservation = async (reservation) => {
+const prelongAndIncreseTries = async (reservation) => {
 	try {
+		reservation.paymentTries++;
 		reservation.isBeingProcessed = false;
 		reservation.createdAt = new Date();
 		await reservation.save();
@@ -65,7 +76,8 @@ const reservationPaid = async (reservation) => {
 const reservationBeingProcessed = async (reservation) => {
 	try {
 		reservation.isBeingProcessed = true;
-		return await reservation.save();
+		const savedRes = await reservation.save();
+		return savedRes;
 	} catch (err) {
 		throw new Error(err.message);
 	}
