@@ -56,6 +56,18 @@ ReservationSchema.methods.toJSON = function () {
 	return reservationObject;
 };
 
+ReservationSchema.statics.findOldAndReap = async function () {
+	const FIFTEEN_MIN = 15 * 60 * 1000;
+	const invalidReservations = await Reservation.deleteMany({
+		isPaid: false,
+		isBeingProcessed: false,
+		createdAt: {
+			$lt: new Date(Date.now() - FIFTEEN_MIN),
+		},
+	});
+	return invalidReservations;
+};
+
 let Reservation = mongoose.model("Reservation", ReservationSchema);
 
 module.exports = { Reservation, SellingOption };

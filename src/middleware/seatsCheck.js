@@ -35,7 +35,7 @@ const seatsCheck = async (req, res, next) => {
 					sellingOptionError = "You have to book all the seats in a row.";
 					break;
 				case sellingOption == SellingOption.AVOID_ONE &&
-					numberOfSeats - seatsToReserve == 1:
+					numberOfSeats - seatsToReserve.length == 1:
 					sellingOptionError = "You cannot leave only one seat empty in a row.";
 					break;
 				case sellingOption == SellingOption.EVEN &&
@@ -73,9 +73,7 @@ const seatsCheck = async (req, res, next) => {
 
 		next();
 	} catch (err) {
-		res.status(err.statusCode).send({
-			error: `Request failed. ${err.message}`,
-		});
+		res.status(err.statusCode).send(`Request failed. ${err.message}`);
 	}
 };
 

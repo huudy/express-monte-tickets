@@ -1,4 +1,5 @@
 const { Reservation } = require("../models/reservation");
+const { BadRequestError, NotFoundError } = require("../util/customErrors");
 const charge = require("../util/paymentGateway");
 const RETRIES_LIMIT = 3;
 
@@ -8,24 +9,24 @@ const isReservationValid = async (req, res, next) => {
 		const reservation = await Reservation.findById(req.body.reservationId);
 
 		if (!reservation) {
-			throw new Error(
+			throw new NotFoundError(
 				`Could not find reservation with id: ${req.body.reservationId}`
 			);
 		}
 		if (reservation.isPaid) {
-			throw new Error(
+			throw new BadRequestError(
 				`Reservation with id: ${reservation._id} is already paid for`
 			);
 		}
 		if (reservation.paymentTries >= RETRIES_LIMIT) {
 			await reservation.delete();
-			throw new Error(
+			throw new BadRequestError(
 				"We are sorry but you reached the maximum number of payment retries. Your reservation is no longer valid. Please book a new ticket."
 			);
 		}
 		if (new Date() - new Date(reservation.createdAt) > FIFTEEN_MIN) {
 			await reservation.delete();
-			throw new Error(
+			throw new BadRequestError(
 				"Your reservation is no longer valid! Next time please finish payment within 15min."
 			);
 		}
@@ -33,9 +34,7 @@ const isReservationValid = async (req, res, next) => {
 		req.body.currentReservation = await reservationBeingProcessed(reservation);
 		next();
 	} catch (e) {
-		res.status(400).send({
-			error: e.message,
-		});
+		res.status(e.statusCode).send(e.message);
 	}
 };
 const externalPayment = async (req, res, next) => {
@@ -46,13 +45,15 @@ const externalPayment = async (req, res, next) => {
 		next();
 	} catch (e) {
 		await prelongAndIncreseTries(currentReservation);
-		res.status(400).send({
-			error: `${
-				e.message
-			}. You have another 15min to finish your payment. You have ${
-				RETRIES_LIMIT - currentReservation.paymentTries
-			} tries left`,
-		});
+		res
+			.status(400)
+			.send(
+				`${
+					e.message
+				}. You have another 15min to finish your payment. You have ${
+					RETRIES_LIMIT - currentReservation.paymentTries
+				} tries left`
+			);
 	}
 };
 const prelongAndIncreseTries = async (reservation) => {
