@@ -136,3 +136,16 @@ test("Should return 400 when wrong sellingOption passed", async () => {
 		/Request failed. Please provide a proper selling option from range 0-2/
 	);
 });
+test("Should return 400 when wrong seats passed", async () => {
+	const response = await request(app)
+		.post("/reservations")
+		.send({
+			eventId,
+			sellingOption: 2,
+			seats: { D: [11, 12] },
+		})
+		.expect(400);
+	expect(response.error.text).toMatch(
+		/Request failed. Please enter correct seat number. Given seat number exceeds total number of seat in given row/
+	);
+});

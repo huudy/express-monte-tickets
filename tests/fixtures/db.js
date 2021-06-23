@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Event = require("../../src/models/event");
 const { Reservation } = require("../../src/models/reservation");
+const Payment = require("../../src/models/payment");
+
 const SIXTEEN_MIN = 16 * 60 * 1000;
 let seats = new Map();
 seats.set("A", {
@@ -91,6 +93,12 @@ const setupDBforPayments = async () => {
 	await new Reservation(reservationThree).save();
 };
 
+const cleanupDB = async () => {
+	await Payment.deleteMany();
+	await Reservation.deleteMany();
+	await Event.deleteMany();
+};
+
 module.exports = {
 	eventId,
 	insertEvent,
@@ -99,4 +107,5 @@ module.exports = {
 	reservationIdThree,
 	wrongId,
 	setupDBforPayments,
+	cleanupDB,
 };

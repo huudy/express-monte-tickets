@@ -2,18 +2,18 @@ const request = require("supertest");
 const app = require("../src/app");
 const Payment = require("../src/models/payment");
 const { Reservation } = require("../src/models/reservation");
-const { BadRequestError } = require("../src/util/customErrors");
 const {
 	reservationId,
 	setupDBforPayments,
 	reservationIdTwo,
 	wrongId,
 	reservationIdThree,
+	cleanupDB,
 } = require("./fixtures/db");
 
 beforeAll(setupDBforPayments);
 
-test("Should pay for a reservation if paid within 15 min", async () => {
+test("Should create payment for a reservation if paid within 15 min", async () => {
 	const response = await request(app)
 		.post("/payment")
 		.send({
@@ -24,7 +24,7 @@ test("Should pay for a reservation if paid within 15 min", async () => {
 	const dbPayment = await Payment.findById(response.body._id);
 	expect(response.body.reservationId).toEqual(dbPayment.reservationId);
 });
-test("Should not be able to pay twice for a reservation", async () => {
+test("Should not be able to pay twice for the smae reservation", async () => {
 	const response = await request(app)
 		.post("/payment")
 		.send({
@@ -66,7 +66,7 @@ test("Should not create a payment for a reservation if payment error", async () 
 	expect(dbPayment).toBeNull();
 });
 
-test("Should not create a payment and delete the reservation if number of retries exceeded", async () => {
+test("Should not create a payment and should delete the reservation if number of retries exceeded", async () => {
 	const response = await request(app)
 		.post("/payment")
 		.send({
@@ -107,7 +107,7 @@ test("Should not create a payment and delete a reservation if paid after 15min p
 		.expect(400);
 
 	expect(response.error.text).toMatch(
-		/Your reservation is no longer valid! Next time please finish payment within 15min./
+		/Your reservation is no longer valid! Next time please finish payment within 15min/
 	);
 
 	const dbPayment = await Payment.findById(response.body._id);
@@ -115,3 +115,4 @@ test("Should not create a payment and delete a reservation if paid after 15min p
 	expect(dbPayment).toBeNull();
 	expect(dbReservation).toBeNull();
 });
+afterAll(cleanupDB);

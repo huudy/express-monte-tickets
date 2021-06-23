@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { Reservation } = require("./reservation");
 
 const RowSchema = new mongoose.Schema({
 	numberOfSeats: {
@@ -37,6 +38,14 @@ EventSchema.virtual("reservations", {
 	ref: "Reservation",
 	localField: "_id",
 	foreignField: "event",
+});
+
+EventSchema.pre("remove", async function (next) {
+	const event = this;
+	await Reservation.deleteMany({
+		event: event._id,
+	});
+	next();
 });
 
 const Event = mongoose.model("Event", EventSchema);
