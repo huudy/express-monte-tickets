@@ -1,5 +1,6 @@
 const express = require("express");
 require("./db/mongoose");
+require("./util/seedDb");
 const paymentRouter = require("./routers/payment");
 const reservationRouter = require("./routers/reservation");
 const dbState = require("./middleware/dbState");
