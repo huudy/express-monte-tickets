@@ -13,6 +13,7 @@ content:
   `MONGODB_URI=mongodb://127.0.0.1:27017/monte-tickets`<br />
   `UNIFIED_TOPOLOGY=false`<br />
   `AUTO_RECONNECT=true`<br />
+  `DEV=true`<br />
 - **test.env:**<br />
   `PORT=3000`<br />
   `MONGODB_URI=mongodb://127.0.0.1:27017/monte-tickets-test`<br />
